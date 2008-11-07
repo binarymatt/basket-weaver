@@ -34,7 +34,7 @@ class TarArchive:
 
     def close(self):
         return self.tgz.close()
-
+ 
 class ZipArchive:
     def __init__(self, filename):
         self.filename = filename
@@ -108,9 +108,14 @@ def _extractNameVersion(filename, tempdir):
                                  shell=True,
                                  )
         output = popen.communicate()[0]
-        return output.splitlines()[:2]
-    finally:
         archive.close()
+        return output.splitlines()[:2]
+    except:
+        archive.close()
+        import traceback
+        print traceback.format_exc()
+    return
+        
 
 
 def main(argv=None):
@@ -125,10 +130,10 @@ def main(argv=None):
             tempdir = tempfile.mkdtemp()
             project, revision = _extractNameVersion(arg, tempdir)
             projects.setdefault(project, []).append((revision, arg))
+            shutil.rmtree(tempdir)
         except:
             pass
-        finally:
-            shutil.rmtree(tempdir)
+            
 
     items = projects.items()
     items.sort()
