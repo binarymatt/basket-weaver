@@ -152,7 +152,7 @@ def main(argv=None):
         dirname = '%s/%s' % (topname, key)
         if not os.path.exists(dirname):
             os.makedirs(dirname)
-        top.write('<li><a href="%s">%s</a>\n' % (key, key))
+        top.write('<li><a href="%s/index.html">%s</a>\n' % (key, key))
 
         sub = open('%s/%s/index.html' % (topname, key), 'w')
         sub.writelines(['<html>\n',
