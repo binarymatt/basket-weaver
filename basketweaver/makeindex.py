@@ -17,7 +17,12 @@ import tempfile
 class TarArchive:
     def __init__(self, filename):
         self.filename = filename
-        self.tgz = tarfile.TarFile.gzopen(filename, 'r')
+	mode = "r"
+	if filename.endswith('.bz2'):
+	    mode = "r:bz2"
+	elif filename.endswith('.gz') or filename.endswith('.tgz'):
+	    mode = "r:gz"
+        self.tgz = tarfile.TarFile.open(filename, mode)
 
     def names(self):
         return self.tgz.getnames()
@@ -65,12 +70,12 @@ def _extractNameVersion(filename, tempdir):
 
     archive = None
     
-    if filename.endswith('.gz') or filename.endswith('.tgz'):
+    if filename.endswith('.gz') or filename.endswith('.tgz') or filename.endswith('.bz2'):
         archive = TarArchive(filename)
 
     elif filename.endswith('.egg') or filename.endswith('.zip'):
         archive = ZipArchive(filename)
-    
+  
     if archive is None:
         return
     try:
