@@ -1,0 +1,6 @@
+0.1.3
+=====
+
+- added support for bz2 files and cleaned up tar file handling to use `open()` instead of `gzopen()`. 
+  See http://docs.python.org/library/tarfile.html for more info. [mrtopf]
+

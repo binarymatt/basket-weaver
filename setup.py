@@ -3,22 +3,22 @@ import sys, os
 
 version = '0.1.3'
 
+here = os.path.abspath(os.path.dirname(__file__))
+
+try:
+    README = open(os.path.join(here, 'README.txt')).read()
+    CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
+except IOError:
+    README = CHANGES = ''
+
 setup(name='basketweaver',
       version=version,
       description="Provides utilities for making your own python package index.",
-      long_description="""*Usage*
-      easy_install basketweaver
-      
-      cd <a/directory/with/eggs/
-      
-      makeindex *
-      
-      Outputs:
-      
-      "index" folder with links to all eggs in the higher up directory.
-      
-""",
-      classifiers=[], # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
+      long_description=README + '\n\n' +  CHANGES,
+      classifiers=[
+        "Intended Audience :: Developers",
+        "Programming Language :: Python",
+        ],
       keywords='python eggs pypi index package gz tar zip',
       author='Christopher Perkins, Chris McDonough',
       author_email='chris@percious.com',
