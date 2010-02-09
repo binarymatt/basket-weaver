@@ -1,5 +1,5 @@
 from setuptools import setup, find_packages
-import sys, os
+import os
 
 version = '0.1.3'
 
@@ -27,9 +27,10 @@ setup(name='basketweaver',
       packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
       include_package_data=True,
       zip_safe=True,
+      distribution_links = ['http://github.com/whitmo/wee/tarball/master#egg=wee'],
       install_requires=[
           # -*- Extra requirements: -*-
-          
+          'wee'
       ],
       entry_points={
         'console_scripts': [
