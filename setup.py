@@ -27,14 +27,19 @@ setup(name='basketweaver',
       packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
       include_package_data=True,
       zip_safe=True,
-      distribution_links = ['http://github.com/whitmo/wee/tarball/master#egg=wee'],
+      distribution_links = ['http://github.com/whitmo/wee/tarball/master'],
       install_requires=[
-          # -*- Extra requirements: -*-
+          'gp.fileupload',
+          'pastedeploy',
           'wee'
       ],
-      entry_points={
-        'console_scripts': [
-            'makeindex = basketweaver.makeindex:main'
-            ],
-        }
+      
+      entry_points="""
+      [paste.app_factory]
+      main = basketweaver.server:make_app
+
+      [console_scripts]
+      makeindex = basketweaver.makeindex:main
+      """
+
    )

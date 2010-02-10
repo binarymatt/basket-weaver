@@ -1,8 +1,8 @@
 """
 From Chris McDonough:
 
-If it's not labeled otherwise and it comes from us, it's released under this license... http://repoze.org/license.html (BSD-like)...
-
+If it's not labeled otherwise and it comes from us, it's released
+under this license... http://repoze.org/license.html (BSD-like)...
 """
 
 import os
