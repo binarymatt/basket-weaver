@@ -6,13 +6,16 @@ under this license... http://repoze.org/license.html (BSD-like)...
 """
 
 import os
-import setuptools
 import shutil
 import subprocess
 import sys
 import tarfile
 import zipfile
 import tempfile
+import logging
+
+logger = logging.getLogger('basketweaver.makeindex')
+
 
 class TarArchive:
     def __init__(self, filename):
@@ -65,6 +68,7 @@ class ZipArchive:
     def close(self):
         return self.zipf.close()
 
+
 def _extractNameVersion(filename, tempdir):
     print 'Parsing:', filename
 
@@ -98,7 +102,6 @@ def _extractNameVersion(filename, tempdir):
 
                     if project is not None and version is not None:
                         return project, version
-                contiue;
                 
         # no PKG-INFO found, do it the hard way.
         archive.extractall(tempdir)
@@ -126,7 +129,8 @@ def _extractNameVersion(filename, tempdir):
 def main(argv=None):
     if argv is None:
         argv = sys.argv[1:]
-
+        print argv
+        
     projects = {}
     for arg in argv:
         if arg.startswith('*'):
@@ -137,8 +141,9 @@ def main(argv=None):
             projects.setdefault(project, []).append((revision, arg))
             shutil.rmtree(tempdir)
         except:
-            pass
-            
+            import traceback
+            error = traceback.format_exc()
+            logger.error(error)
 
     items = projects.items()
     items.sort()
