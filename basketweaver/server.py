@@ -31,12 +31,19 @@ def upload(request):
     upload_md = dict(request.POST)
     upload_md['user'] = user
     upload_md['pkg_filename'] = filename
-    recreate_index(repo_dir, upload_md)
+    recreate_index(repo_dir)
     request.environ['gp.fileupload.purge'](filepath)
     return Response(status=200)
 
 
-def recreate_index(repo_dir, upload_md):
+@wee.post(r'^/regenerate-index$')
+def regenerate_index(request):
+    repo_dir = CONFIG['repo_dir']
+    recreate_index(repo_dir)
+    return Response(status=200)
+
+
+def recreate_index(repo_dir):
     repo_dir = path(repo_dir)
     with utils.pushd(repo_dir):
         pkgs = [x.relpath() for x in repo_dir.files() if x.endswith('gz') or x.endswith('egg')]

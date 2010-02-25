@@ -13,7 +13,8 @@ except IOError:
 
 setup(name='basketweaver',
       version=version,
-      description="Provides utilities for making your own python package index.",
+      description="Provides utilities for making your own python package " \
+      "index plus a simple server for implementing pypi upload interface.",
       long_description=README + '\n\n' +  CHANGES,
       classifiers=[
         "Intended Audience :: Developers",
@@ -21,7 +22,7 @@ setup(name='basketweaver',
         ],
       keywords='python eggs pypi index package gz tar zip',
       author='Christopher Perkins, Chris McDonough',
-      author_email='chris@percious.com',
+      author_email='whit at myemma dot com',
       url='http://code.google.com/p/basket-weaver/',
       license='MIT',
       packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
@@ -31,7 +32,9 @@ setup(name='basketweaver',
       install_requires=[
           'gp.fileupload',
           'pastedeploy',
-          'wee'
+          'wee',
+          #'pystache',
+          'paste'
       ],
       
       entry_points="""
