@@ -1,59 +1,50 @@
-from basketweaver.utils import unwsgify
+from __future__ import with_statement
+from basketweaver.makeindex import main as makeindex
+from basketweaver.path import path
 from gp.fileupload import Storage
-from os import path
 from paste.config import ConfigMiddleware, CONFIG
 from paste.urlparser import StaticURLParser
 from webob import Response
-from basketweaver.makeindex import main as makeindex
+from basketweaver import utils
 import os
 import pkg_resources
 import tempfile
 import wee
 
+try:
+    import simplejson as json
+except ImportError:
+    import json
+    
 req = pkg_resources.Requirement.parse('basketweaver')
 data = pkg_resources.resource_filename(req, 'data')
-#from webob import exc
-#import webob
-#from webob.multidict import MultiDict
-
-#r'^simple/$'
-#r'^simple/(?P<dist_name>[\w\d_\.\-]+)/(?P<version>[\w\.\d\-_]+)/$'
-#r'^simple/(?P<dist_name>[\w\d_\.\-]+)/$'
-#r'^$'
-#r'^(?P<dist_name>[\w\d_\.\-]+)/$'
-
-## @wee.post(r'^$')
-## def post(request):
-##     pass
 
 
 @wee.post(r'^/$')
 def upload(request):
-    #this is sort of janky
-    import pdb;pdb.set_trace()
     repo_dir = CONFIG['repo_dir']
-    filepath = path.join(CONFIG['upload_dest_dir'], request.environ.get('HTTP_STORED_PATHS'))
-    print filepath
-    print path.join(repo_dir, request.POST['content'].filename)
-    try:
-        os.rename(filepath, path.join(repo_dir, request.POST['content'].filename))
-    except Exception, e:
-        print e
-        import pdb;pdb.set_trace()
-        
-    recreate_index(repo_dir)
+    fp = request.POST['content'].file.getvalue().strip()
+    filepath = path(CONFIG['upload_dest_dir']) / fp
+    user = request.headers['Authorization'].split(' ')[1].decode('base64').split(":")[0]
+    filename = request.POST['content'].filename
+    filepath.copy(path(repo_dir) / filename)
+    upload_md = dict(request.POST)
+    upload_md['user'] = user
+    upload_md['pkg_filename'] = filename
+    recreate_index(repo_dir, upload_md)
+    request.environ['gp.fileupload.purge'](filepath)
     return Response(status=200)
 
 
-def recreate_index(repo_dir):
-    opdir = path.abspath(os.curdir)
-    os.chdir(repo_dir)
-    makeindex("*")
-    os.chdir(opdir)
+def recreate_index(repo_dir, upload_md):
+    repo_dir = path(repo_dir)
+    with utils.pushd(repo_dir):
+        pkgs = [x.relpath() for x in repo_dir.files() if x.endswith('gz') or x.endswith('egg')]
+        makeindex(pkgs)
 
 
 @wee.get(r'^/$')
-@unwsgify
+@utils.unwsgify
 def static_dispatch(environ, start_response):
     return environ['basketweaver.static'](environ, start_response)
 
@@ -67,8 +58,8 @@ def make_app(global_conf, **app_conf):
     
     pm = conf.pop('postmortem', 'false')
     max_size = conf.get('upload_max_size', 150000)
-
-    app = app_factory(max_size, pm=pm, config=conf)
+    udd = conf.get('upload_dest_dir', None)
+    app = app_factory(udd, max_size, pm=pm, config=conf)
     app.conf = conf.copy()
     app = ConfigMiddleware(app, conf)
     return app
@@ -84,7 +75,6 @@ def app_factory(udd=None, max_size=150000, repo_dir=data, cache_age=None, pm=Tru
     if config is not None:
         config['upload_dest_dir'] = udd
         
-    print "UPLOAD DIR: %s" %udd
     app = Storage(app, upload_to=udd, tempdir=tmpdir, max_size=max_size)
  
     if pm != 'false':
@@ -106,7 +96,7 @@ class StaticDelegate(object):
         environ['basketweaver.static'] = self.static
         return self.app(environ, start_reponse)
 
-        
+       
 class trace(object):
     
     def __init__(self, app):
