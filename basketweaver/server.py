@@ -22,6 +22,9 @@ data = pkg_resources.resource_filename(req, 'data')
 
 @wee.post(r'^/$')
 def upload(request):
+    """
+    PyPi style upload handler. Currently discards metadata.
+    """
     repo_dir = CONFIG['repo_dir']
     fp = request.POST['content'].file.getvalue().strip()
     filepath = path(CONFIG['upload_dest_dir']) / fp
